@@ -18,7 +18,7 @@ Xcore is a collection of hundreds of Swift extensions and components designed to
 
 ## Installation
 
-### CocoaPods
+### CocoaPods test
 
 Xcore is available through [CocoaPods](http://cocoapods.org). To integrate Xcore into your Xcode project using CocoaPods, simply add the following line to your `Podfile`:
 
