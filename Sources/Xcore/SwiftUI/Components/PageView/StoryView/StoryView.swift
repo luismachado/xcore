@@ -46,6 +46,7 @@ public struct StoryView<Page, Content, Background>: View where Page: Identifiabl
 
             // Progress Indicator
             progressIndicator
+                .padding(.top)
         }
         .onAppear(perform: storyTimer.start)
         .onDisappear(perform: storyTimer.stop)
