@@ -23,7 +23,7 @@ extension EnvironmentValues {
 
 extension EnvironmentValues {
     private struct DefaultMinButtonHeightKey: EnvironmentKey {
-        static var defaultValue: CGFloat = 50
+        static var defaultValue: CGFloat = 56
     }
 
     public var defaultMinButtonHeight: CGFloat {
