@@ -140,8 +140,6 @@ extension LAError: CustomStringConvertible {
                 "passcodeNotSet"
             case .userFallback:
                 "userFallback"
-            case .watchNotAvailable:
-                "watchNotAvailable"
             default:
                 "code_\(code.rawValue)"
         }
@@ -171,8 +169,6 @@ extension LAError: CustomStringConvertible {
                 "Authentication could not start because passcode is not set on the device."
             case .userFallback:
                 "Authentication was canceled because the user tapped the fallback button (Enter Password)."
-            case .watchNotAvailable:
-                "An attempt to authenticate with Apple Watch failed."
             default:
                 "Authentication failed with reason code \(code.rawValue)."
         }

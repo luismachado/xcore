@@ -315,3 +315,5 @@ extension Date.Style {
     /// For example, `9:41 AM`
     public static var time: Self { time(.short) }
 }
+
+extension ISO8601DateFormatter.Options: @retroactive Hashable {}
