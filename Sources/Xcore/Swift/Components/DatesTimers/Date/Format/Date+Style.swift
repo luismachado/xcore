@@ -316,4 +316,4 @@ extension Date.Style {
     public static var time: Self { time(.short) }
 }
 
-extension ISO8601DateFormatter.Options: @retroactive Hashable {}
+extension Foundation.ISO8601DateFormatter.Options: Swift.Hashable {}
