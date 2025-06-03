@@ -7,37 +7,42 @@
 import Foundation
 
 public struct UnimplementedAddressSearchClient: AddressSearchClient {
+    public func query(_ query: String) async throws -> PostalAddress {
+        IssueReporting.unimplemented("\(AddressSearchClient.self).search")
+        throw CancellationError()
+    }
+
+    public func updateQuery(_ query: String, id: UUID) {
+        IssueReporting.unimplemented("\(AddressSearchClient.self).updateQuery")
+    }
+
+    public func resolve(_ result: AddressSearchResult) async throws -> PostalAddress {
+        IssueReporting.unimplemented("\(AddressSearchClient.self).resolve")
+        throw CancellationError()
+    }
+
+    public func validate(_ address: PostalAddress) async throws {
+        IssueReporting.unimplemented("\(AddressSearchClient.self).validate")
+        throw CancellationError()
+    }
+
     public func observe(id: UUID) -> AsyncStream<[AddressSearchResult]> {
         .init {
-            XCTFail("\(Self.self).observe is unimplemented")
+            IssueReporting.unimplemented("\(AddressSearchClient.self).observe")
             $0.finish()
         }
     }
 
-    public func update(id: UUID, searchString: String) {
-        XCTFail("\(Self.self).update is unimplemented")
-    }
-
-    public func validate(address: PostalAddress) async throws {
-        XCTFail("\(Self.self).validate is unimplemented")
-        throw CancellationError()
-    }
-
     public func map(result: AddressSearchResult) async throws -> PostalAddress {
         XCTFail("\(Self.self).map is unimplemented")
-        throw CancellationError()
-    }
-
-    public func search(query: String) async throws -> PostalAddress {
-        XCTFail("\(Self.self).search is unimplemented")
-        throw CancellationError()
+        return .init()
     }
 }
 
 // MARK: - Dot Syntax Support
 
 extension AddressSearchClient where Self == UnimplementedAddressSearchClient {
-    /// Returns unimplemented variant of `AddressSearchClient`.
+    /// Returns the unimplemented variant of `AddressSearchClient`.
     public static var unimplemented: Self {
         .init()
     }

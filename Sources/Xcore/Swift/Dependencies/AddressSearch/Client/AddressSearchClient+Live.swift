@@ -27,25 +27,36 @@ extension LiveAddressSearchClient {
 
 public final class LiveAddressSearchClient: AddressSearchClient {
     private typealias L = Localized.PostalAddress
-    private var delegates = [UUID: Delegate]()
+    private let delegates = LockIsolated([UUID: Delegate]())
 
     public func observe(id: UUID) -> AsyncStream<[AddressSearchResult]> {
         AsyncStream { [weak self] continuation in
-            self?.delegates[id] = Delegate { results in
-                continuation.yield(results)
+            self?.delegates.withValue {
+                $0[id] = Delegate { results in
+                    continuation.yield(results)
+                }
             }
 
             continuation.onTermination = { [weak self] _ in
-                self?.delegates[id] = nil
+                self?.delegates.withValue {
+                    $0[id] = nil
+                }
             }
         }
     }
 
-    public func update(id: UUID, searchString: String) {
-        delegates[id]?.searchCompleter.queryFragment = searchString
+    public func updateQuery(_ query: String, id: UUID) {
+        delegates.withValue {
+            $0[id]?.query = query
+        }
     }
 
-    public func validate(address: PostalAddress) async throws {
+    public func resolve(_ result: AddressSearchResult) async throws -> PostalAddress {
+        let placemark = try await perform(request: result.request())
+        return PostalAddress(placemark)
+    }
+
+    public func validate(_ address: PostalAddress) async throws {
         // Check the input address doesn't correspond to a P.O. Box.
         if address.isPoBox {
             throw AppError.postalAddressInvalidPoBox
@@ -78,7 +89,7 @@ public final class LiveAddressSearchClient: AddressSearchClient {
         return PostalAddress(placemark)
     }
 
-    public func search(query: String) async throws -> PostalAddress {
+    public func query(_ query: String) async throws -> PostalAddress {
         let request = MKLocalSearch.Request().apply {
             $0.naturalLanguageQuery = query
             $0.resultTypes = .address
@@ -160,7 +171,7 @@ public final class LiveAddressSearchClient: AddressSearchClient {
 
 extension LiveAddressSearchClient {
     private final class Delegate: NSObject, MKLocalSearchCompleterDelegate, @unchecked Sendable {
-        fileprivate let searchCompleter = MKLocalSearchCompleter()
+        nonisolated(unsafe) private let searchCompleter = MKLocalSearchCompleter()
         private let onResults: @Sendable ([AddressSearchResult]) -> Void
 
         init(onResults: @escaping @Sendable ([AddressSearchResult]) -> Void) {
@@ -176,6 +187,11 @@ extension LiveAddressSearchClient {
 
         func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
             onResults([])
+        }
+
+        var query: String {
+            get { searchCompleter.queryFragment }
+            set { searchCompleter.queryFragment = newValue }
         }
 
         deinit {
